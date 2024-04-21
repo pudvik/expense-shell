@@ -3,7 +3,7 @@ Description = Backend Service
 
 [Service]
 User=expense
-Environment=DB_HOST="db.daws-78s.site"
+Environment=DB_HOST="db.daws78s.site"
 ExecStart=/bin/node /app/index.js
 SyslogIdentifier=backend
 
