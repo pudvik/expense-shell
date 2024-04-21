@@ -8,6 +8,8 @@ R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
+echo "Please enter DB password:"
+read -s mysql_root_password
 
 
 VALIDATE(){
@@ -45,3 +47,43 @@ then
 else
     echo -e "expense user already exist ... $Y SKIPPING $N"
 fi
+
+mkdir /app &>>$LOGFILE
+VALIDATE $? "create app directory"
+
+curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip &>>$LOGFILE
+VALIDATE $? "Download code"
+
+cd /app
+
+rm -rf /tmp/*
+
+unzip /tmp/backend.zip &>>$LOGFILE 
+VALIDATE $? "Unzip backend code"
+
+cd /app
+
+npm install &>>$LOGFILE
+VALIDATE $? "install nodejs dependecies"
+
+#check repo and path
+cp /home/ec2-user/expense-shell/backend.service /etc/systemd/system/backend.service &>>$LOGFILE
+VALIDATE $? "Copy backend service"
+
+systemctl daemon-reload &>>$LOGFILE
+VALIDATE $? "reload daemon"
+
+systemctl start backend &>>$LOGFILE
+VALIDATE $? "START BACKEND"
+
+systemctl enable backend &>>$LOGFILE
+VALIDATE $? "Enable backend"
+
+dnf install mysql -y &>>$LOGFILE
+VALIDATE $? "INSTALL MYSQL client "
+
+mysql -h db.daws-78s.site -uroot -pExpenseApp@1 < /app/schema/backend.sql &>>$LOGFILE
+VALIDATE $? "Schema loading"
+
+systemctl restart backend &>>$LOGFILE
+VALIDATE $? "Restart backend"
