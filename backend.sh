@@ -56,7 +56,7 @@ VALIDATE $? "Download code"
 
 cd /app
 
-rm -rf /tmp/*
+rm -rf /app/*
 
 unzip /tmp/backend.zip &>>$LOGFILE 
 VALIDATE $? "Unzip backend code"
